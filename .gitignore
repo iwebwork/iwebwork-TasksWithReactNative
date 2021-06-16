@@ -61,3 +61,12 @@ buck-out/
 /node_modules
 /__MACOSX
 /__tests__
+_editorconfig
+.buckconfig
+.eslintrc.js
+.flowconfig
+.gitattributes
+.prettierrc.js
+.watchmanconfig
+babel.config.js
+metro.config.js
