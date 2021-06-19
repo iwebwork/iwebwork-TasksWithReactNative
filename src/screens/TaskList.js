@@ -1,32 +1,32 @@
 import React, { Component} from 'react'
-import { View,Text, ImageBackground, StyleSheet, FlatList, TouchableOpacity } from 'react-native'
+import { View,Text, ImageBackground, StyleSheet, FlatList, TouchableOpacity, Alert } from 'react-native'
 import communStyles from '../communStyles'
-import todayImage from '../../assets/imgs/today.jpg'
 import Icon from 'react-native-vector-icons/FontAwesome'
 import moment from 'moment'
 import 'moment/locale/pt-br'
-import Task from '../components/Task'
+import AsyncStorage from '@react-native-community/async-storage'
 
+import Task from '../components/Task'
+import AddTask from '../screens/AddTask'
+import todayImage from '../../assets/imgs/today.jpg'
+
+const initialState = {
+    showDoneTasks: true,
+    visibleTasks:[],
+    tasks:[],
+    showAddTask:false,
+}
 
 export default class TaskList extends Component {
 
     state = {
-        showDoneTasks: true,
-        visibleTasks:[],
-        tasks:[
-            {
-                id:Math.random(),
-                desc:'teste 1',
-                dateEstimate:new Date(),
-                dateDone:new Date() 
-            },
-            {
-                id:Math.random(),
-                desc:'teste 2',
-                dateEstimate:new Date(),
-                dateDone:null
-            }
-        ]
+        ...initialState
+    }
+
+    componentDidMount = async () => {
+        const StorageState = await AsyncStorage.getItem('state')
+        const state = JSON.parse(StorageState) || initialState
+        this.setState(state, this.filterTasks)
     }
 
     toggleFilter = () => {
@@ -44,6 +44,7 @@ export default class TaskList extends Component {
         }
 
         this.setState({visibleTasks})
+        AsyncStorage.setItem('state', JSON.stringify(this.state))
     }
 
     toggleTask = id => {
@@ -57,8 +58,27 @@ export default class TaskList extends Component {
         this.setState({tasks}, this.filterTasks)
     }
 
-    componentDidMount = () => {
-        this.filterTasks()
+    addTasks = (newTask) => {
+        // console.warn(newTask.desc.trim())
+        if(!newTask.desc || !newTask.desc.trim()){
+            Alert.alert('Dados invalidos', 'Descrição não informada')
+            return 
+        }
+
+        const tasks = [...this.state.tasks]
+        tasks.push({
+            id:Math.random(),
+            desc:newTask.desc,
+            dateEstimate:newTask.dateEstimate,
+            dateDone:null
+        })
+
+        this.setState({tasks, showAddTask: false}, this.filterTasks)
+    }
+
+    deleteTask = (id) => {
+        const tasks = this.state.tasks.filter(task => task.id !== id)
+        this.setState({tasks}, this.filterTasks)
     }
 
     render(){
@@ -67,6 +87,11 @@ export default class TaskList extends Component {
 
         return(
             <View style={styles.container}>
+                <AddTask 
+                    modalIsVisible={this.state.showAddTask}
+                    modalOnCancel={() => this.setState({showAddTask:false})}
+                    modalOnSave={this.addTasks}
+                />
                 <ImageBackground 
                         source={todayImage}
                         style={styles.background}
@@ -92,11 +117,20 @@ export default class TaskList extends Component {
                         data={this.state.visibleTasks}
                         keyExtractor={item => `${item.id}`}
                         renderItem={
-                            ({item}) => <Task {...item}
-                            toggleTask={this.toggleTask}
-                        />}
+                            ({item}) => 
+                            <Task 
+                                {...item}
+                                onToggleTask={this.toggleTask}
+                                onDelete={this.deleteTask}
+                            />}
                     />
                 </View>
+                <TouchableOpacity style={styles.plusButton}
+                    onPress={() => this.setState({showAddTask:true})}
+                    activeOpacity={0.5}
+                >
+                    <Icon name="plus" size={20} color={communStyles.colors.primary} />
+                </TouchableOpacity>
                 
                 
             </View>
@@ -111,7 +145,7 @@ const styles = StyleSheet.create({
     },
 
     background:{
-        flex: 3,
+        flex: 2,
     },
 
     taskList: {
@@ -140,6 +174,17 @@ const styles = StyleSheet.create({
         marginHorizontal:20,
         justifyContent: 'flex-end',
         marginTop:10
+    },
+    plusButton:{
+        justifyContent: 'center',
+        alignItems: 'center',
+        position: 'absolute',
+        width:50,
+        height:50,
+        borderRadius:25,
+        right:20,
+        bottom:30,
+        backgroundColor:communStyles.colors.iconArea
     }
 
     
