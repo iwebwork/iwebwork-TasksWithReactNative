@@ -1,5 +1,5 @@
 export default {
-    fontFamily:'Lato',
+    fontFamily:'Open Sans',
     colors:{
         primary:'#FFF',
         secondary:'#EEEDDD',
