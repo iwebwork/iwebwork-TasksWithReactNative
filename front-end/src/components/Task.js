@@ -71,7 +71,7 @@ function getCheckView(dateDone){
     if(dateDone != null){
         return (
             <View style={styles.done}>
-                <Icon name="check" size={20} color='#FFF' style={styles.iconExclude}></Icon>
+                <Icon name="check" size={14} color='#FFF' style={styles.iconExclude}></Icon>
             </View>
         )
     }else{
