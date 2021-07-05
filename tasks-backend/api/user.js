@@ -14,8 +14,8 @@ module.exports = app =>{
             app.db('users')
                 .insert({
                     name: req.body.name, 
-                    password: password,
-                    email: req.body.email
+                    password,
+                    email: req.body.email.toLowerCase(),
                 })
                 .then(_ => res.status(204).send())
                 .catch(err => res.status(400).json(err))
