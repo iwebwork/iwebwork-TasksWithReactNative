@@ -1,8 +1,10 @@
 import React, { Component } from "react"
-import {Text, ImageBackground, StyleSheet, View, TextInput, TouchableOpacity, Alert} from "react-native"
+import {Text, ImageBackground, StyleSheet, View, TouchableOpacity, Alert} from "react-native"
 
 import backgroundImage from '../../assets/imgs/login.jpg'
 import communStyles from '../communStyles'
+
+import AuthInput from "../components/AuthInput"
 
 export default class Auth extends Component {
 
@@ -32,17 +34,17 @@ export default class Auth extends Component {
                     </Text>
                     {
                         this.state.stageNew &&
-                            <TextInput placeholder="Nome" value={this.state.name} style={styles.textInput}
+                            <AuthInput icon={'user'} placeholder="Nome" value={this.state.name} style={styles.textInput}
                                 onChangeText={name => this.setState({ name })}/>
                     }
-                    <TextInput placeholder="E-mail" value={this.state.email} style={styles.textInput}
+                    <AuthInput icon={'at'} placeholder="E-mail" value={this.state.email} style={styles.textInput}
                         onChangeText={email => this.setState({ email })}/>
-                    <TextInput placeholder="Senha" value={this.state.password} style={styles.textInput}
+                    <AuthInput icon={'lock'} placeholder="Senha" value={this.state.password} style={styles.textInput}
                         onChangeText={password => this.setState({ password })} secureTextEntry={true}/>
                     
                     {
                         this.state.stageNew &&
-                            <TextInput placeholder="Confime sua senha" value={this.state.confirmPassword} style={styles.textInput}
+                            <AuthInput icon={'lock'} placeholder="Confime sua senha" value={this.state.confirmPassword} style={styles.textInput}
                                 onChangeText={confirmPassword => this.setState({ confirmPassword })} secureTextEntry={true}/>
                     }
 
@@ -58,7 +60,8 @@ export default class Auth extends Component {
                 <TouchableOpacity style={{padding:10}}
                     onPress={
                         () => this.setState({stageNew: !this.state.stageNew})
-                    }>
+                    }
+                >
                     
                     <Text style={styles.subTitleTwo}>
                         {this.state.stageNew ? 'Já possui uma conta?' : 'Quer se cadastrar?'}
@@ -100,9 +103,8 @@ const styles = StyleSheet.create({
     },
     textInput:{
         marginBottom:10,
-        // backgroundColor:communStyles.colors.secondary,
         backgroundColor:'rgba(223,223,223, 0.9)',
-        height:60
+        height:45
     },
     formContainer:{
         width:'95%',
@@ -113,11 +115,12 @@ const styles = StyleSheet.create({
         backgroundColor:'rgba(233,110,0,0.9)',
         marginTop:10,
         padding:10,
-        alignItems:'center'
+        alignItems:'center',
+        borderRadius:15
     },
     buttonText:{
         fontFamily:communStyles.fontFamily,
         color:'#FFF',
-        fontSize:20
+        fontSize:18
     }
 })
