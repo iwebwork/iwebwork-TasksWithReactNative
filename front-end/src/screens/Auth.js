@@ -1,26 +1,56 @@
 import React, { Component } from "react"
 import {Text, ImageBackground, StyleSheet, View, TouchableOpacity, Alert} from "react-native"
 
+import axios from 'axios'
+
 import backgroundImage from '../../assets/imgs/login.jpg'
 import communStyles from '../communStyles'
 
 import AuthInput from "../components/AuthInput"
 
+import {server,showError, showSuccess} from '../common'
+
+const api = axios.create({
+    baseURL:server
+})
+
+const initialState = {
+    email:'',
+    password: '',
+    name:'',
+    confirmPassword: '',
+    stageNew:false,
+}
+
 export default class Auth extends Component {
 
     state = {
-        email:'',
-        password: '',
-        name:'',
-        confirmPassword: '',
-        stageNew:false,
+        ...initialState
     }
 
     signinOrsignup = () => {
         if(this.state.stageNew){
-            Alert.alert('Success', 'Criar a conta')
+            this.signup()
         }else{
             Alert.alert('Success', 'Logado!')
+        }
+    }
+
+    signup = async() => {
+        try {
+            
+            await api.post('/signup', {
+                email:this.state.email,
+                password: this.state.password,
+                name:this.state.name,
+                confirmPassword: this.state.confirmPassword,
+            })
+
+            showSuccess('Usuário cadastrado com sucesso!')
+            this.setState({...initialState})
+
+        }catch(e){
+            showError(e)
         }
     }
 
