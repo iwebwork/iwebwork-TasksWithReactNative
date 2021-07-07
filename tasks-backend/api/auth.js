@@ -9,17 +9,17 @@ module.exports = app => {
         }
 
         const user = await app.db('users')
-            .whereRaw({'LOWER(email) = LOWER(?)': req.body.email})
+            .where({'email': req.body.email})
             .first()
 
         if(user){
             bcrypt.compare(req.body.password, user.password, (err, isMatch) => {
                 if(err || !isMatch){
-                    res.status(401).send('Usuario não autorizado!')
+                    return res.status(401).send('Usuario não autorizado!')
                 }else{
                     const payload = {id: user.id}
 
-                    res.json({
+                    return res.json({
                         name: user.name,
                         email: user.email,
                         token: jwt.encode(payload, authSecret)
@@ -27,7 +27,7 @@ module.exports = app => {
                 }
             })
         }else{
-            res.send(400).send('Usuario não foi encontrado!')
+            return res.status(400).send('Usuario não foi encontrado!')
         }
     }
 
