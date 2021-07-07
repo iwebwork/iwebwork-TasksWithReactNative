@@ -70,3 +70,5 @@ _editorconfig
 .watchmanconfig
 babel.config.js
 metro.config.js
+common.js
+front-end/src/common.js

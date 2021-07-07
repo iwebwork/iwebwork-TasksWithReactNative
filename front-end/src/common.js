@@ -1,9 +1,9 @@
 import {Alert} from 'react-native'
 
-const server = 'http://url:porta'
+const server = 'http://192.169.0.112:3000'
 
 function showError(err){
-    Alert.alert('Ops, ocorreu um problema!', `Mensagem: ${err}`)
+    Alert.alert('Ops, ocorreu um problema!', `${err}`)
 }
 
 function showSuccess(msg){
