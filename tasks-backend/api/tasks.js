@@ -3,7 +3,7 @@ const moment = require('moment')
 module.exports = app => {
     const getTask = (req, res, next) => {
         const date = req.query.date ? req.query.date
-            : moment().endOf('day').toDate()
+            : moment().format('YYYY-MM-DD 23:59:59')
 
         app.db('tasks')
             .where({userId: req.user.id})
@@ -43,7 +43,7 @@ module.exports = app => {
     const updateTasksDateDone = (req, res, dateDone) => {
         app.db('tasks')
             .where({id: req.params.id, userId: req.user.id})
-            update({dateDone})
+            .update({dateDone})
             .then(_ => res.status(204).send())
             .catch(err => res.status(400).json(err))
     }
@@ -52,14 +52,15 @@ module.exports = app => {
         app.db('tasks')
             .where({id: req.params.id, userId: req.user.id})
             .first()
-            then(task => {
+            .then(task => {
                 if(!task)
                     res.status(400).send(`Task com o id ${req.params.id} não foi encontrada.`)
                 else{
                     const dateDone = task.dateDone ? null : new Date()
-                    updateTasksDateDone(req,req,dateDone)
+                    updateTasksDateDone(req,res,dateDone)
                 }
             })
+            .catch(err => res.status(400).json(err))
     }
 
     return {getTask, save, remove,toggleTasks}
