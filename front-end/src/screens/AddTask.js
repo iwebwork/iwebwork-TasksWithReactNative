@@ -148,5 +148,6 @@ const styles = StyleSheet.create({
         fontSize:communStyles.fontSize,
         textAlign: 'center',
         padding: 20,
+        color:'gray'
     }
 })

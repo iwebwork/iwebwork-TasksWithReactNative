@@ -10,6 +10,13 @@ import Task from '../components/Task'
 import AddTask from '../screens/AddTask'
 import todayImage from '../../assets/imgs/today.jpg'
 
+import axios from 'axios'
+import {server,showError, showSuccess} from '../common'
+
+const api = axios.create({
+    baseURL:server
+})
+
 const initialState = {
     showDoneTasks: true,
     visibleTasks:[],
@@ -26,7 +33,18 @@ export default class TaskList extends Component {
     componentDidMount = async () => {
         const StorageState = await AsyncStorage.getItem('state')
         const state = JSON.parse(StorageState) || initialState
-        this.setState(state, this.filterTasks)
+        this.setState({showDoneTasks: state.showAddTask}, this.filterTasks)
+        this.loadTasks()
+    }
+
+    loadTasks = async () => {
+        try {
+            const maxDate = moment().format('YYYY-MM-DD 23:59:59')
+            const res = await api.get('/tasks?date='+maxDate)
+            this.setState({tasks: res.data}, this.filterTasks)
+        }catch (e){
+            showError(e)
+        }
     }
 
     toggleFilter = () => {
@@ -44,7 +62,11 @@ export default class TaskList extends Component {
         }
 
         this.setState({visibleTasks})
-        AsyncStorage.setItem('state', JSON.stringify(this.state))
+        AsyncStorage.setItem('state', JSON.stringify(
+            {
+                showDoneTasks: this.state.showAddTask
+            }
+        ))
     }
 
     toggleTask = id => {
