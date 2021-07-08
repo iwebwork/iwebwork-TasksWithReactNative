@@ -13,10 +13,6 @@ import todayImage from '../../assets/imgs/today.jpg'
 import axios from 'axios'
 import {server,showError, showSuccess} from '../common'
 
-const api = axios.create({
-    baseURL:server
-})
-
 const initialState = {
     showDoneTasks: true,
     visibleTasks:[],
@@ -40,10 +36,10 @@ export default class TaskList extends Component {
     loadTasks = async () => {
         try {
             const maxDate = moment().format('YYYY-MM-DD 23:59:59')
-            const res = await api.get('/tasks?date='+maxDate)
+            const res = await axios.get(`${server}/tasks?date=${maxDate}`)
             this.setState({tasks: res.data}, this.filterTasks)
         }catch (e){
-            showError(e)
+            showError(e + ' - Caiu aquii dois')
         }
     }
 
@@ -69,38 +65,40 @@ export default class TaskList extends Component {
         ))
     }
 
-    toggleTask = id => {
-        const tasks = [...this.state.tasks]
-        tasks.forEach(task =>{
-            if(task.id === id){
-                task.dateDone = task.dateDone ? null : new Date()
-            }
-        })
-
-        this.setState({tasks}, this.filterTasks)
+    toggleTask = async id => {
+        try {
+            await axios.put(`${server}/toggleTasks/${id}`)
+            this.loadTasks()
+        } catch (error) {
+            showError(error)
+        }
     }
 
-    addTasks = (newTask) => {
-        // console.warn(newTask.desc.trim())
+    addTasks = async (newTask) => {
         if(!newTask.desc || !newTask.desc.trim()){
             Alert.alert('Dados invalidos', 'Descrição não informada')
             return 
         }
 
-        const tasks = [...this.state.tasks]
-        tasks.push({
-            id:Math.random(),
-            desc:newTask.desc,
-            dateEstimate:newTask.dateEstimate,
-            dateDone:null
-        })
+        try {
+            await axios.post(`${server}/tasks`, {
+                desc: newTask.desc,
+                dateEstimate:newTask.date
+            })
+            this.setState({showAddTask: false}, this.loadTasks)
+        } catch (error) {
+            showError(error)
+        }
 
-        this.setState({tasks, showAddTask: false}, this.filterTasks)
     }
 
-    deleteTask = (id) => {
-        const tasks = this.state.tasks.filter(task => task.id !== id)
-        this.setState({tasks}, this.filterTasks)
+    deleteTask = async (id) => {
+        try {
+            await axios.delete(`${server}/tasks/${id}`)
+            this.loadTasks()
+        } catch (error) {
+            showError(error)
+        }
     }
 
     render(){

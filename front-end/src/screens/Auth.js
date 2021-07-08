@@ -10,10 +10,6 @@ import AuthInput from "../components/AuthInput"
 
 import {server,showError, showSuccess} from '../common'
 
-const api = axios.create({
-    baseURL:server
-})
-
 const initialState = {
     email:'teste@teste.com',
     password: 'teste',
@@ -39,7 +35,7 @@ export default class Auth extends Component {
     signup = async() => {
         try {
             
-            await api.post('/signup', {
+            await axios.post(`${server}/signup`, {
                 email:this.state.email,
                 password: this.state.password,
                 name:this.state.name,
@@ -56,13 +52,12 @@ export default class Auth extends Component {
 
     signin = async() => {
         try {            
-            const res = await api.post('/signin', {
+            const res = await axios.post(`${server}/signin`, {
                 email: this.state.email,
                 password: this.state.password
             })
 
-
-            axios.defaults.headers.common['Authorization'] = `bearer ${res.data.token}`
+            axios.defaults.headers.common['Authorization'] = `Bearer ${res.data.token}`
 
             this.props.navigation.navigate('Home')
         } catch (error) {
