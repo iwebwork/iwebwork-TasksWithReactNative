@@ -11,18 +11,18 @@ import {server,showError, showSuccess} from '../common'
 export default class AuthOrApp extends Component {
 
     componentDidMount = async () => {
-        const userDateJson = await AsyncStorage.getItem('userDate')
+        const userDataJson = await AsyncStorage.getItem('userData')
 
-        let userDate = null 
+        let userData = null 
         try {
-            userDate = JSON.parse(userDateJson)
+            userData = JSON.parse(userDataJson)
         } catch (error) {
             showError(error)
         }
 
-        if(userDate && userDate.token){
-            axios.defaults.headers.common['Authorization'] = `Bearer ${userDate.token}`
-            this.props.navigation.navigate('Home', userDate)
+        if(userData && userData.token){
+            axios.defaults.headers.common['Authorization'] = `Bearer ${userData.token}`
+            this.props.navigation.navigate('Home', userData)
         }else{
             this.props.navigation.navigate('Auth')
         }

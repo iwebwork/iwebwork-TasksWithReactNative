@@ -1,8 +1,12 @@
 import React from 'react'
-import {ScrollView, View, Text, StyleSheet} from 'react-native'
+import {ScrollView, View, Text, StyleSheet, TouchableOpacity} from 'react-native'
 import {DrawerItems} from 'react-navigation-drawer'
 import {Gravatar} from 'react-native-gravatar'
 import communStyles from '../communStyles'
+
+import axios from 'axios'
+import AsyncStorage from '@react-native-community/async-storage'
+import Icon from 'react-native-vector-icons/FontAwesome'
 
 export default props => {
 
@@ -11,14 +15,28 @@ export default props => {
         secure: true
     }
 
+    const logout = () => {
+        delete axios.defaults.headers.common['Authorization']
+        AsyncStorage.removeItem('userData')
+        props.navigation.navigate('AuthOrApp')
+    }
+
     return (
         <ScrollView>
+            <Text style={styles.title}>Tasks</Text>
             <View style={styles.header}>
-                <Text style={styles.title}>Tasks</Text>
                 <Gravatar style={styles.avatar} options={optionsGravatar}/>
+                <TouchableOpacity
+                    onPress={logout}
+                >
+                <View style={styles.iconSignOut}>
+                    <Icon name="sign-out" size={25} color='#800'/>
+                </View>
+            </TouchableOpacity>
             </View>
             <View style={styles.info}>
                 <Text>{props.navigation.getParam('name')}</Text>
+               
             </View>
             <DrawerItems {...props}/>
         </ScrollView>
@@ -27,7 +45,9 @@ export default props => {
 
 const styles = StyleSheet.create({
     header: {
-        paddingLeft:10
+        paddingLeft:10,
+        flexDirection: 'row',
+        justifyContent:'space-between'
     },
     avatar:{
         width: 50,
@@ -47,5 +67,8 @@ const styles = StyleSheet.create({
         fontSize:30,
         paddingTop:10,
         textAlign: 'center',
+    },
+    iconSignOut: {
+        paddingRight:10
     }
 })
