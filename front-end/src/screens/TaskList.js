@@ -136,6 +136,7 @@ export default class TaskList extends Component {
         try {
             await axios.delete(`${server}/tasks/${id}`)
             this.loadTasks()
+            showSuccess('Evento deletado com sucesso!')
         } catch (error) {
             showError(error)
         }
