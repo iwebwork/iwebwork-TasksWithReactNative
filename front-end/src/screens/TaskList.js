@@ -8,7 +8,12 @@ import AsyncStorage from '@react-native-community/async-storage'
 
 import Task from '../components/Task'
 import AddTask from '../screens/AddTask'
+
 import todayImage from '../../assets/imgs/today.jpg'
+import TomorrowImage from '../../assets/imgs/tomorrow.jpg'
+import WeekImage from '../../assets/imgs/week.jpg'
+import MonthImage from '../../assets/imgs/month.jpg'
+
 
 import axios from 'axios'
 import {server,showError, showSuccess} from '../common'
@@ -18,6 +23,8 @@ const initialState = {
     visibleTasks:[],
     tasks:[],
     showAddTask:false,
+    img:null,
+    colorBtnAdd:''
 }
 
 export default class TaskList extends Component {
@@ -31,13 +38,43 @@ export default class TaskList extends Component {
         const state = JSON.parse(StorageState) || initialState
         this.setState({showDoneTasks: state.showAddTask}, this.filterTasks)
         this.loadTasks()
+        this.alterImage()
+        this.alterColorPlusBtn()
+    }
+
+    alterImage = () => {
+        if(this.props.daysAhead === 0)
+            this.setState({img:todayImage})
+        else if(this.props.daysAhead === 1)
+            this.setState({img:TomorrowImage})
+        else if(this.props.daysAhead === 7)
+            this.setState({img:WeekImage})
+        else
+            this.setState({img:MonthImage})
+        
+    }
+
+    alterColorPlusBtn = () => {
+        if(this.props.daysAhead === 0)
+                this.setState({colorBtnAdd: communStyles.colors.iconArea})
+        else if(this.props.daysAhead === 1)
+                this.setState({colorBtnAdd: '#FFA500'})
+        else if(this.props.daysAhead === 7)
+                this.setState({colorBtnAdd: 'rgb(0,110,0)'})
+        else
+            this.setState({colorBtnAdd: 'rgb(0,0,190)'})
+                
+        
     }
 
     loadTasks = async () => {
         try {
-            const maxDate = moment().format('YYYY-MM-DD 23:59:59')
+            const maxDate = moment().add({days: this.props.daysAhead}).format('YYYY-MM-DD 23:59:59')
             const res = await axios.get(`${server}/tasks?date=${maxDate}`)
             this.setState({tasks: res.data}, this.filterTasks)
+            this.alterImage()
+            this.alterColorPlusBtn()
+
         }catch (e){
             showError(e + ' - Caiu aquii dois')
         }
@@ -45,6 +82,8 @@ export default class TaskList extends Component {
 
     toggleFilter = () => {
         this.setState({showDoneTasks: !this.state.showDoneTasks}, this.filterTasks )
+        this.alterImage()
+        this.alterColorPlusBtn()
     }
 
     filterTasks = () => {
@@ -69,6 +108,7 @@ export default class TaskList extends Component {
         try {
             await axios.put(`${server}/toggleTasks/${id}`)
             this.loadTasks()
+
         } catch (error) {
             showError(error)
         }
@@ -103,7 +143,7 @@ export default class TaskList extends Component {
 
     render(){
 
-        const today = moment().locale('pt-br').format('ddd, D [de] MMMM')
+        const date = moment().locale('pt-br').format('ddd, D [de] MMMM')
 
         return(
             <View style={styles.container}>
@@ -113,10 +153,19 @@ export default class TaskList extends Component {
                     modalOnSave={this.addTasks}
                 />
                 <ImageBackground 
-                        source={todayImage}
+                        source={this.state.img}
                         style={styles.background}
                 >
                     <View style={styles.iconBar}>
+
+                        <TouchableOpacity
+                            onPress={() => this.props.navigation.openDrawer()}
+                        >
+                            <Icon 
+                                name={'bars'}
+                                size={25} color={communStyles.colors.secondary}/>
+                        </TouchableOpacity>
+
                         <TouchableOpacity
                             onPress={this.toggleFilter}
                         >
@@ -126,8 +175,8 @@ export default class TaskList extends Component {
                         </TouchableOpacity>
                     </View>
                     <View style={styles.titleBar}>
-                        <Text style={styles.textTitleBar}>Hoje</Text>
-                        <Text style={styles.subTitle}>{today}</Text>
+                        <Text style={styles.textTitleBar}>{this.props.title}</Text>
+                        <Text style={styles.subTitle}>{date}</Text>
                     </View>
 
                 </ImageBackground>
@@ -145,7 +194,7 @@ export default class TaskList extends Component {
                             />}
                     />
                 </View>
-                <TouchableOpacity style={styles.plusButton}
+                <TouchableOpacity style={[styles.plusButton, {backgroundColor:this.state.colorBtnAdd}]}
                     onPress={() => this.setState({showAddTask:true})}
                     activeOpacity={0.5}
                 >
@@ -192,8 +241,8 @@ const styles = StyleSheet.create({
     iconBar:{
         flexDirection: 'row',
         marginHorizontal:20,
-        justifyContent: 'flex-end',
-        marginTop:10
+        justifyContent: 'space-between',
+        marginTop:10,
     },
     plusButton:{
         justifyContent: 'center',
@@ -204,7 +253,6 @@ const styles = StyleSheet.create({
         borderRadius:25,
         right:20,
         bottom:30,
-        backgroundColor:communStyles.colors.iconArea
     }
 
     
