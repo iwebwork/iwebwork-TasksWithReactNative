@@ -15,7 +15,7 @@ module.exports = app => {
         if(user){
             bcrypt.compare(req.body.password, user.password, (err, isMatch) => {
                 if(err || !isMatch){
-                    return res.status(401).send('Usuario não autorizado!')
+                    return res.status(401).send('A senha informada é inválida!')
                 }else{
                     const payload = {id: user.id}
 
@@ -27,7 +27,7 @@ module.exports = app => {
                 }
             })
         }else{
-            return res.status(400).send('Usuario não foi encontrado!')
+            return res.status(400).send('Usuário não foi encontrado!')
         }
     }
 
